@@ -9,7 +9,7 @@ require (
 	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.2.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.26.0
 	github.com/nats-io/nats.go v1.38.0
-	github.com/redis/rueidis v1.0.53
+	github.com/redis/rueidis v1.0.54
 	github.com/redis/rueidis/rueidisotel v1.0.53
 	github.com/rs/cors v1.11.1
 	github.com/shopspring/decimal v1.4.0
@@ -46,7 +46,6 @@ require (
 	github.com/klauspost/compress v1.17.11 // indirect
 	github.com/nats-io/nkeys v0.4.9 // indirect
 	github.com/nats-io/nuid v1.0.1 // indirect
-	github.com/onsi/gomega v1.36.0 // indirect
 	github.com/puzpuzpuz/xsync/v3 v3.5.0 // indirect
 	github.com/tmthrgd/go-hex v0.0.0-20190904060850-447a3041c3bc // indirect
 	github.com/uptrace/opentelemetry-go-extra/otelsql v0.3.2 // indirect
