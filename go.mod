@@ -8,9 +8,9 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.2.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.26.0
-	github.com/nats-io/nats.go v1.38.0
-	github.com/redis/rueidis v1.0.53
-	github.com/redis/rueidis/rueidisotel v1.0.53
+	github.com/nats-io/nats.go v1.39.0
+	github.com/redis/rueidis v1.0.54
+	github.com/redis/rueidis/rueidisotel v1.0.54
 	github.com/rs/cors v1.11.1
 	github.com/shopspring/decimal v1.4.0
 	github.com/uptrace/bun v1.2.9
@@ -33,7 +33,7 @@ require (
 	go.uber.org/fx v1.23.0
 	go.uber.org/zap v1.27.0
 	golang.org/x/net v0.34.0
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20250127172529-29210b9bc287
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20250204164813-702378808489
 	google.golang.org/grpc v1.70.0
 	gopkg.in/yaml.v3 v3.0.1
 )
@@ -46,7 +46,6 @@ require (
 	github.com/klauspost/compress v1.17.11 // indirect
 	github.com/nats-io/nkeys v0.4.9 // indirect
 	github.com/nats-io/nuid v1.0.1 // indirect
-	github.com/onsi/gomega v1.36.0 // indirect
 	github.com/puzpuzpuz/xsync/v3 v3.5.0 // indirect
 	github.com/tmthrgd/go-hex v0.0.0-20190904060850-447a3041c3bc // indirect
 	github.com/uptrace/opentelemetry-go-extra/otelsql v0.3.2 // indirect
@@ -58,9 +57,9 @@ require (
 	go.uber.org/dig v1.18.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/crypto v0.32.0 // indirect
-	golang.org/x/mod v0.22.0 // indirect
-	golang.org/x/sys v0.29.0 // indirect
-	golang.org/x/text v0.21.0 // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20250127172529-29210b9bc287 // indirect
-	google.golang.org/protobuf v1.36.4 // indirect
+	golang.org/x/mod v0.23.0 // indirect
+	golang.org/x/sys v0.30.0 // indirect
+	golang.org/x/text v0.22.0 // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20250204164813-702378808489 // indirect
+	google.golang.org/protobuf v1.36.5 // indirect
 )
