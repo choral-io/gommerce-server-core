@@ -15,6 +15,7 @@ func LoadYamlConfig() (RootConfig, error) {
 		path = "./config/app-deploy.yaml"
 	}
 	txt, err := os.ReadFile(path)
+	txt = []byte(os.ExpandEnv(string(txt)))
 	if err != nil {
 		return nil, err
 	}

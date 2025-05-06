@@ -4,7 +4,7 @@ server:
   name: gommerce-server-core
   version: 1.0.0
   http:
-    addr: :5050
+    addr: 127.0.0.1:5050
     cors:
       allowed-origins:
         - "*"
@@ -67,11 +67,11 @@ secure:
   token:
     store: jwt # jwt, redis, memory
     bucket: gommerce-server-core:token-store
-    access-token-ttl: 48h # 2 days
-    refresh-token-ttl: 168h # 7 days
     issuer: gommerce-server-core
     audience: gommerce-server
     signing-method: RS256
+    access-token-ttl: 48h # 2 days
+    refresh-token-ttl: 168h # 7 days
     public-key-file: ./config/jwt/public.pem
     public-key-value: |
       -----BEGIN PUBLIC KEY-----
