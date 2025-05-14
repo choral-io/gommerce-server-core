@@ -30,6 +30,14 @@ server:
   redis:
     init-addr: 127.0.0.1:6379
     select-db: 0
+  locker:
+    key-prefix: gommerce-server-core:dlock
+    key-validity: 5s
+    extend-interval: 1s
+    try-next-after: 20ms
+    key-majority: 2
+    no-loop-tracking: true
+    fallback-setpx: false
   minio:
     endpoint: play.min.io
     access-key: Q3AM3UQ867SPQQA43P2F

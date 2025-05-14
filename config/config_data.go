@@ -67,6 +67,7 @@ type serverConfig struct {
 	HTTP    *serverHTTPConfig
 	DB      *serverDBConfig
 	Redis   *serverRedisConfig
+	Locker  *serverLockerConfig
 	MinIO   *serverMinIOConfig
 	NATS    *serverNATSConfig
 }
@@ -124,6 +125,13 @@ func (c *serverConfig) GetRedisConfig() ServerRedisConfig {
 		c.Redis = &serverRedisConfig{}
 	}
 	return c.Redis
+}
+
+func (c *serverConfig) GetLockerConfig() ServerLockerConfig {
+	if c.Locker == nil {
+		c.Locker = &serverLockerConfig{}
+	}
+	return c.Locker
 }
 
 func (c *serverConfig) GetMinIOConfig() ServerMinIOConfig {
@@ -261,6 +269,72 @@ func (c *serverRedisConfig) GetSelectDB() int {
 		return 0
 	} else {
 		return *c.SelectDB
+	}
+}
+
+type serverLockerConfig struct {
+	KeyPrefix      *string        `yaml:"key-prefix"`
+	KeyValidity    *time.Duration `yaml:"key-validity"`
+	ExtendInterval *time.Duration `yaml:"extend-interval"`
+	TryNextAfter   *time.Duration `yaml:"try-next-after"`
+	KeyMajority    *int32         `yaml:"key-majority"`
+	NoLoopTracking *bool          `yaml:"no-loop-tracking"`
+	FallbackSETPX  *bool          `yaml:"fallback-setpx"`
+}
+
+func (c *serverLockerConfig) GetKeyPrefix() string {
+	if c.KeyPrefix == nil {
+		return "gommerce-server-core:lock"
+	} else {
+		return *c.KeyPrefix
+	}
+}
+
+func (c *serverLockerConfig) GetKeyValidity() time.Duration {
+	if c.KeyValidity == nil {
+		return 5 * time.Second
+	} else {
+		return *c.KeyValidity
+	}
+}
+
+func (c *serverLockerConfig) GetExtendInterval() time.Duration {
+	if c.ExtendInterval == nil {
+		return 1 * time.Second
+	} else {
+		return *c.ExtendInterval
+	}
+}
+
+func (c *serverLockerConfig) GetTryNextAfter() time.Duration {
+	if c.TryNextAfter == nil {
+		return 20 * time.Millisecond
+	} else {
+		return *c.TryNextAfter
+	}
+}
+
+func (c *serverLockerConfig) GetKeyMajority() int32 {
+	if c.KeyMajority == nil {
+		return 2
+	} else {
+		return *c.KeyMajority
+	}
+}
+
+func (c *serverLockerConfig) GetNoLoopTracking() bool {
+	if c.NoLoopTracking == nil {
+		return true
+	} else {
+		return *c.NoLoopTracking
+	}
+}
+
+func (c *serverLockerConfig) GetFallbackSETPX() bool {
+	if c.FallbackSETPX == nil {
+		return false
+	} else {
+		return *c.FallbackSETPX
 	}
 }
 
@@ -541,15 +615,15 @@ func (c *secureConfig) GetToken() SecureTokenConfig {
 type secureTokenConfig struct {
 	Store           *string
 	Bucket          *string
-	AccessTokenTTL  *time.Duration `yaml:"access-token-ttl"`
-	RefreshTokenTTL *time.Duration `yaml:"refresh-token-ttl"`
 	Issuer          *string
 	Audience        *string
-	SigningMethod   *string `yaml:"signing-method"`
-	PublicKeyFile   *string `yaml:"public-key-file"`
-	PrivateKeyFile  *string `yaml:"private-key-file"`
-	PublicKeyValue  *string `yaml:"public-key-value"`
-	PrivateKeyValue *string `yaml:"private-key-value"`
+	SigningMethod   *string        `yaml:"signing-method"`
+	AccessTokenTTL  *time.Duration `yaml:"access-token-ttl"`
+	RefreshTokenTTL *time.Duration `yaml:"refresh-token-ttl"`
+	PublicKeyFile   *string        `yaml:"public-key-file"`
+	PrivateKeyFile  *string        `yaml:"private-key-file"`
+	PublicKeyValue  *string        `yaml:"public-key-value"`
+	PrivateKeyValue *string        `yaml:"private-key-value"`
 }
 
 func (c *secureTokenConfig) GetStore() string {
@@ -565,22 +639,6 @@ func (c *secureTokenConfig) GetBucket() string {
 		return "tokens"
 	} else {
 		return *c.Bucket
-	}
-}
-
-func (c *secureTokenConfig) GetAccessTokenTTL() time.Duration {
-	if c.AccessTokenTTL == nil {
-		return 2 * 24 * time.Hour // default to 2 days
-	} else {
-		return *c.AccessTokenTTL
-	}
-}
-
-func (c *secureTokenConfig) GetRefreshTokenTTL() time.Duration {
-	if c.RefreshTokenTTL == nil {
-		return 7 * 24 * time.Hour // default to 7 days
-	} else {
-		return *c.RefreshTokenTTL
 	}
 }
 
@@ -605,6 +663,22 @@ func (c *secureTokenConfig) GetSigningMethod() string {
 		return "RS256"
 	} else {
 		return *c.SigningMethod
+	}
+}
+
+func (c *secureTokenConfig) GetAccessTokenTTL() time.Duration {
+	if c.AccessTokenTTL == nil {
+		return 2 * 24 * time.Hour // default to 2 days
+	} else {
+		return *c.AccessTokenTTL
+	}
+}
+
+func (c *secureTokenConfig) GetRefreshTokenTTL() time.Duration {
+	if c.RefreshTokenTTL == nil {
+		return 7 * 24 * time.Hour // default to 7 days
+	} else {
+		return *c.RefreshTokenTTL
 	}
 }
 

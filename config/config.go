@@ -11,36 +11,38 @@ import (
 type ExtractSectionsResult struct {
 	fx.Out
 
-	ServerConfig      ServerConfig
-	ServerHTTPConfig  ServerHTTPConfig
-	ServerDBConfig    ServerDBConfig
-	ServerRedisConfig ServerRedisConfig
-	ServerMinIOConfig ServerMinIOConfig
-	ServerNATSConfig  ServerNATSConfig
-	SnowflakeConfig   SnowflakeConfig
-	LoggingConfig     LoggingConfig
-	TraceConfig       TraceConfig
-	MetricConfig      MetricConfig
-	SecureConfig      SecureConfig
-	SecureTokenConfig SecureTokenConfig
+	ServerConfig       ServerConfig
+	ServerHTTPConfig   ServerHTTPConfig
+	ServerDBConfig     ServerDBConfig
+	ServerRedisConfig  ServerRedisConfig
+	ServerLockerConfig ServerLockerConfig
+	ServerMinIOConfig  ServerMinIOConfig
+	ServerNATSConfig   ServerNATSConfig
+	SnowflakeConfig    SnowflakeConfig
+	LoggingConfig      LoggingConfig
+	TraceConfig        TraceConfig
+	MetricConfig       MetricConfig
+	SecureConfig       SecureConfig
+	SecureTokenConfig  SecureTokenConfig
 }
 
 // ExtractSections extracts sections from RootConfig.
 // It is used for dependency injection.
 func ExtractSections(cfg RootConfig) ExtractSectionsResult {
 	result := ExtractSectionsResult{
-		ServerConfig:      cfg.GetServerConfig(),
-		ServerHTTPConfig:  cfg.GetServerConfig().GetHTTPConfig(),
-		ServerDBConfig:    cfg.GetServerConfig().GetDBConfig(),
-		ServerRedisConfig: cfg.GetServerConfig().GetRedisConfig(),
-		ServerMinIOConfig: cfg.GetServerConfig().GetMinIOConfig(),
-		ServerNATSConfig:  cfg.GetServerConfig().GetNATSConfig(),
-		SnowflakeConfig:   cfg.GetSnowflakeConfig(),
-		LoggingConfig:     cfg.GetLoggingConfig(),
-		TraceConfig:       cfg.GetTraceConfig(),
-		MetricConfig:      cfg.GetMetricConfig(),
-		SecureConfig:      cfg.GetSecureConfig(),
-		SecureTokenConfig: cfg.GetSecureConfig().GetToken(),
+		ServerConfig:       cfg.GetServerConfig(),
+		ServerHTTPConfig:   cfg.GetServerConfig().GetHTTPConfig(),
+		ServerDBConfig:     cfg.GetServerConfig().GetDBConfig(),
+		ServerRedisConfig:  cfg.GetServerConfig().GetRedisConfig(),
+		ServerLockerConfig: cfg.GetServerConfig().GetLockerConfig(),
+		ServerMinIOConfig:  cfg.GetServerConfig().GetMinIOConfig(),
+		ServerNATSConfig:   cfg.GetServerConfig().GetNATSConfig(),
+		SnowflakeConfig:    cfg.GetSnowflakeConfig(),
+		LoggingConfig:      cfg.GetLoggingConfig(),
+		TraceConfig:        cfg.GetTraceConfig(),
+		MetricConfig:       cfg.GetMetricConfig(),
+		SecureConfig:       cfg.GetSecureConfig(),
+		SecureTokenConfig:  cfg.GetSecureConfig().GetToken(),
 	}
 	return result
 }
@@ -62,6 +64,7 @@ type ServerConfig interface {
 	GetHTTPConfig() ServerHTTPConfig
 	GetDBConfig() ServerDBConfig
 	GetRedisConfig() ServerRedisConfig
+	GetLockerConfig() ServerLockerConfig
 	GetMinIOConfig() ServerMinIOConfig
 	GetNATSConfig() ServerNATSConfig
 }
@@ -79,6 +82,16 @@ type ServerDBConfig interface {
 type ServerRedisConfig interface {
 	GetInitAddr() string
 	GetSelectDB() int
+}
+
+type ServerLockerConfig interface {
+	GetKeyPrefix() string
+	GetKeyValidity() time.Duration
+	GetExtendInterval() time.Duration
+	GetTryNextAfter() time.Duration
+	GetKeyMajority() int32
+	GetNoLoopTracking() bool
+	GetFallbackSETPX() bool
 }
 
 type ServerMinIOConfig interface {
@@ -145,11 +158,11 @@ type SecureConfig interface {
 type SecureTokenConfig interface {
 	GetStore() string
 	GetBucket() string
-	GetAccessTokenTTL() time.Duration
-	GetRefreshTokenTTL() time.Duration
 	GetIssuer() string
 	GetAudience() string
 	GetSigningMethod() string
+	GetAccessTokenTTL() time.Duration
+	GetRefreshTokenTTL() time.Duration
 	GetPublicKey() []byte
 	GetPrivateKey() []byte
 }
