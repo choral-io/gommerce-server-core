@@ -10,6 +10,7 @@ import (
 )
 
 type rootConfig struct {
+	yamlDoc   any
 	Server    *serverConfig
 	Snowflake *snowflakeConfig
 	Logging   *loggingConfig
