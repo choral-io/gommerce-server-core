@@ -3,7 +3,6 @@ package secure
 import (
 	"crypto/rand"
 	"math/big"
-	"strings"
 )
 
 const (
@@ -31,12 +30,15 @@ func RandString(l int, s string) (string, error) {
 // MaskString masks the given string.
 // The middle third of the given string will be masked with asterisks.
 func MaskString(origin string) string {
-	l := len(origin)
-	r := l % 3
+	runes := []rune(origin)
+	l := len(runes)
 	s := l / 3
 	e := s * 2
-	if r > 0 {
+	if l%3 > 0 {
 		e++
 	}
-	return origin[:s] + strings.Repeat("*", e-s) + origin[e:]
+	for i := s; i < e && i < l; i++ {
+		runes[i] = '*'
+	}
+	return string(runes)
 }
