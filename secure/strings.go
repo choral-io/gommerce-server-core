@@ -10,7 +10,7 @@ const (
 	DefaultPasswordSymbols = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()-_=+,.?/:;{}[]`~"
 )
 
-// RandString randomly generates l length string from the given symbols.
+// RandString randomly generates a string of length l from the given symbols.
 func RandString(l int, s string) (string, error) {
 	if s == "" || l <= 0 {
 		return "", nil
