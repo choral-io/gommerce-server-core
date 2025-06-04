@@ -1,8 +1,11 @@
 package config
 
 import (
+	"fmt"
 	"log/slog"
 	"os"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -17,6 +20,44 @@ type rootConfig struct {
 	Trace     *traceConfig
 	Metric    *metricConfig
 	Secure    *secureConfig
+}
+
+// GetValue retrieves a value from the configuration by its path.
+// The path should be in the format of "section.index.key".
+func (c *rootConfig) GetValue(path string) (any, error) {
+	if len(path) == 0 {
+		if c.yamlDoc == nil {
+			return nil, fmt.Errorf("%w", ErrConfigNotLoaded)
+		}
+		return c.yamlDoc, nil
+	}
+	if c.yamlDoc == nil {
+		return nil, fmt.Errorf("%w", ErrConfigNotLoaded)
+	}
+
+	current := c.yamlDoc
+	for _, sub := range strings.Split(path, ".") {
+		switch node := current.(type) {
+		case map[string]any:
+			val, ok := node[sub]
+			if !ok {
+				return nil, fmt.Errorf("%w: %q in %q", ErrKeyNotFound, sub, path)
+			}
+			current = val
+		case []any:
+			idx, err := strconv.Atoi(sub)
+			if err != nil {
+				return nil, fmt.Errorf("%w %q in %q: %v", ErrInvalidIndex, sub, path, err)
+			}
+			if idx < 0 || idx >= len(node) {
+				return nil, fmt.Errorf("%w %d in %q", ErrIndexOutOfRange, idx, path)
+			}
+			current = node[idx]
+		default:
+			return nil, fmt.Errorf("%w %T at %q in %q", ErrUnexpectedType, current, sub, path)
+		}
+	}
+	return current, nil
 }
 
 func (c *rootConfig) GetServerConfig() ServerConfig {

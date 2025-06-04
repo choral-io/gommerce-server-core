@@ -1,11 +1,20 @@
 package config
 
 import (
+	"errors"
 	"log/slog"
 	"time"
 
 	"github.com/rs/cors"
 	"go.uber.org/fx"
+)
+
+var (
+	ErrConfigNotLoaded = errors.New("config not loaded")
+	ErrKeyNotFound     = errors.New("key not found")
+	ErrInvalidIndex    = errors.New("invalid index")
+	ErrIndexOutOfRange = errors.New("index out of range")
+	ErrUnexpectedType  = errors.New("unexpected type")
 )
 
 type ExtractSectionsResult struct {
@@ -48,6 +57,7 @@ func ExtractSections(cfg RootConfig) ExtractSectionsResult {
 }
 
 type RootConfig interface {
+	GetValue(path string) (any, error)
 	GetServerConfig() ServerConfig
 	GetSnowflakeConfig() SnowflakeConfig
 	GetLoggingConfig() LoggingConfig
