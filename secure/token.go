@@ -74,7 +74,7 @@ func (t *Token) ExpiresAt() time.Time {
 }
 
 func (t *Token) IsExpired() bool {
-	return !t.expiresAt.IsZero() && t.expiresAt.After(time.Now().UTC())
+	return !t.expiresAt.IsZero() && t.expiresAt.Before(time.Now().UTC())
 }
 
 // TokenStore used to manage tokens.
