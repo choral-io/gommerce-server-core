@@ -38,7 +38,7 @@ func NewMeterProvider(cfg config.MetricConfig, res *resource.Resource) (metric.M
 	} else if protocol == "noop" {
 		exporter = nil
 	} else {
-		return nil, fmt.Errorf("invalid trace exporter protocol: %s", protocol)
+		return nil, fmt.Errorf("invalid metric exporter protocol: %s", protocol)
 	}
 	if err != nil {
 		return nil, err
