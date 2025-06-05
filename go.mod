@@ -4,6 +4,7 @@ go 1.23.0
 
 require (
 	github.com/expr-lang/expr v1.17.5
+	github.com/goccy/go-yaml v1.18.0
 	github.com/golang-jwt/jwt/v5 v5.2.2
 	github.com/google/uuid v1.6.0
 	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.3.2
@@ -35,7 +36,6 @@ require (
 	golang.org/x/net v0.40.0
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20250603155806-513f23925822
 	google.golang.org/grpc v1.72.2
-	sigs.k8s.io/yaml v1.4.0
 )
 
 require (

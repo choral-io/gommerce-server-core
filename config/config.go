@@ -11,10 +11,6 @@ import (
 
 var (
 	ErrConfigNotLoaded = errors.New("config not loaded")
-	ErrKeyNotFound     = errors.New("key not found")
-	ErrInvalidIndex    = errors.New("invalid index")
-	ErrIndexOutOfRange = errors.New("index out of range")
-	ErrUnexpectedType  = errors.New("unexpected type")
 )
 
 type ExtractSectionsResult struct {
@@ -57,7 +53,9 @@ func ExtractSections(cfg RootConfig) ExtractSectionsResult {
 }
 
 type RootConfig interface {
-	GetValue(path string) (any, error)
+	// GetValue retrieves a value from the configuration by its path.
+	// The path is a valid JSON path, e.g. "$.server.http.addr".
+	GetValue(path string, value any) error
 	GetServerConfig() ServerConfig
 	GetSnowflakeConfig() SnowflakeConfig
 	GetLoggingConfig() LoggingConfig

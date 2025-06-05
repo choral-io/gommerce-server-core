@@ -3,7 +3,7 @@ package config
 import (
 	"os"
 
-	yaml "sigs.k8s.io/yaml/goyaml.v3"
+	yaml "github.com/goccy/go-yaml"
 )
 
 // LoadYamlConfig loads RootConfig from file.
@@ -14,20 +14,16 @@ func LoadYamlConfig() (RootConfig, error) {
 	if !ok {
 		path = "./config/app-deploy.yaml"
 	}
-	txt, err := os.ReadFile(path)
-	txt = []byte(os.ExpandEnv(string(txt)))
+	raw, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}
+	raw = []byte(os.ExpandEnv(string(raw)))
 	cfg := &rootConfig{}
-	doc := new(any)
-	if err := yaml.Unmarshal(txt, cfg); err != nil {
-		return nil, err
-	}
-	if err := yaml.Unmarshal(txt, doc); err != nil {
+	if err := yaml.Unmarshal(raw, cfg); err != nil {
 		return nil, err
 	} else {
-		cfg.yamlDoc = *doc
+		cfg.rawData = raw
 		return cfg, nil
 	}
 }
