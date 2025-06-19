@@ -8,17 +8,17 @@ require (
 	github.com/golang-jwt/jwt/v5 v5.2.2
 	github.com/google/uuid v1.6.0
 	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.3.2
-	github.com/grpc-ecosystem/grpc-gateway/v2 v2.26.3
+	github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.0
 	github.com/nats-io/nats.go v1.43.0
 	github.com/redis/rueidis v1.0.61
 	github.com/redis/rueidis/rueidisotel v1.0.61
 	github.com/rs/cors v1.11.1
 	github.com/shopspring/decimal v1.4.0
-	github.com/uptrace/bun v1.2.12
-	github.com/uptrace/bun/dialect/mssqldialect v1.2.12
-	github.com/uptrace/bun/dialect/mysqldialect v1.2.12
-	github.com/uptrace/bun/dialect/pgdialect v1.2.12
-	github.com/uptrace/bun/extra/bunotel v1.2.12
+	github.com/uptrace/bun v1.2.14
+	github.com/uptrace/bun/dialect/mssqldialect v1.2.14
+	github.com/uptrace/bun/dialect/mysqldialect v1.2.14
+	github.com/uptrace/bun/dialect/pgdialect v1.2.14
+	github.com/uptrace/bun/extra/bunotel v1.2.14
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.61.0
 	go.opentelemetry.io/otel v1.36.0
 	go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc v1.36.0

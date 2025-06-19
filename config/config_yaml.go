@@ -23,7 +23,7 @@ func LoadYamlConfig() (RootConfig, error) {
 	if err := yaml.Unmarshal(raw, cfg); err != nil {
 		return nil, err
 	} else {
-		cfg.rawData = raw
+		cfg.yamlDoc = raw
 		return cfg, nil
 	}
 }

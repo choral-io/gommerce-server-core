@@ -13,7 +13,7 @@ import (
 )
 
 type rootConfig struct {
-	rawData   []byte
+	yamlDoc   []byte
 	Server    *serverConfig
 	Snowflake *snowflakeConfig
 	Logging   *loggingConfig
@@ -23,20 +23,19 @@ type rootConfig struct {
 }
 
 func (c *rootConfig) GetValue(path string, value any) error {
-	if len(c.rawData) == 0 {
+	if len(c.yamlDoc) > 0 {
+		pyp, err := yaml.PathString(path) // parsed YAML path
+		if err != nil {
+			return fmt.Errorf("failed to parse YAML path %q: %w", path, err)
+		}
+
+		err = pyp.Read(bytes.NewReader(c.yamlDoc), value)
+		if err != nil {
+			return fmt.Errorf("failed to read value at path %q: %w", path, err)
+		}
+	} else {
 		return ErrConfigNotLoaded
 	}
-
-	pyp, err := yaml.PathString(path) // parsed YAML path
-	if err != nil {
-		return fmt.Errorf("failed to parse YAML path %q: %w", path, err)
-	}
-
-	err = pyp.Read(bytes.NewReader(c.rawData), value)
-	if err != nil {
-		return fmt.Errorf("failed to read value at path %q: %w", path, err)
-	}
-
 	return nil
 }
 
