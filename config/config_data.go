@@ -204,7 +204,7 @@ func (c *serverHTTPCorsConfig) corsOptions() cors.Options {
 		AllowedMethods:       []string{"HEAD", "GET", "POST"},
 		AllowedHeaders:       []string{"Authorization", "Content-Type", "Content-Length"},
 		ExposedHeaders:       []string{"Content-Type", "Content-Length"},
-		MaxAge:               5,
+		MaxAge:               0,
 		AllowCredentials:     false,
 		AllowPrivateNetwork:  false,
 		OptionsPassthrough:   false,
@@ -227,11 +227,6 @@ func (c *serverHTTPCorsConfig) corsOptions() cors.Options {
 	}
 	if c.MaxAge != nil {
 		opts.MaxAge = *c.MaxAge
-		if opts.MaxAge == 0 {
-			opts.MaxAge = 5
-		} else if opts.MaxAge == -1 {
-			opts.MaxAge = 0
-		}
 	}
 	if c.AllowCredentials != nil {
 		opts.AllowCredentials = *c.AllowCredentials

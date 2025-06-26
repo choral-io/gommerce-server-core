@@ -22,23 +22,24 @@ func NewTracerProvider(cfg config.TraceConfig, res *resource.Resource) (trace.Tr
 	protocol := cfg.GetExporterConfig().GetProtocol()
 	var exporter sdktrace.SpanExporter
 	var err error
-	if protocol == "otlp-grpc" {
+	switch protocol {
+	case "otlp-grpc":
 		exporter, err = otlptracegrpc.New(ctx,
 			otlptracegrpc.WithEndpoint(cfg.GetExporterConfig().GetEndpoint()),
 			otlptracegrpc.WithInsecure(),
 			otlptracegrpc.WithTimeout(2*time.Second),
 		)
-	} else if protocol == "otlp-http" {
+	case "otlp-http":
 		exporter, err = otlptracehttp.New(ctx,
 			otlptracehttp.WithEndpoint(cfg.GetExporterConfig().GetEndpoint()),
 			otlptracehttp.WithInsecure(),
 			otlptracehttp.WithTimeout(2*time.Second),
 		)
-	} else if protocol == "stdout" {
+	case "stdout":
 		exporter, err = stdout.New(stdout.WithPrettyPrint())
-	} else if protocol == "noop" {
+	case "noop":
 		exporter = tracetest.NewNoopExporter()
-	} else {
+	default:
 		return nil, fmt.Errorf("invalid trace exporter protocol: %s", protocol)
 	}
 	if err != nil {

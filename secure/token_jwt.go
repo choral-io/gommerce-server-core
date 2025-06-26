@@ -60,7 +60,8 @@ func NewJsonWebTokenStore(tokenIssuer, tokenAudience, signingAlgName string, sig
 	var signingKey any
 	var verifyKey any
 	signingMethod := jwt.GetSigningMethod(signingAlgName)
-	if signingMethod == jwt.SigningMethodRS256 || signingMethod == jwt.SigningMethodRS384 || signingMethod == jwt.SigningMethodRS512 {
+	switch signingMethod {
+	case jwt.SigningMethodRS256, jwt.SigningMethodRS384, jwt.SigningMethodRS512:
 		// if the signing method is RSA, parse the private key from the signing key data
 		if privateKey, err := signingKeyData.toRSAPrivateKey(); err != nil {
 			return nil, err
@@ -72,11 +73,11 @@ func NewJsonWebTokenStore(tokenIssuer, tokenAudience, signingAlgName string, sig
 		} else {
 			verifyKey = publicKey
 		}
-	} else if signingMethod == jwt.SigningMethodHS256 || signingMethod == jwt.SigningMethodHS384 || signingMethod == jwt.SigningMethodHS512 {
+	case jwt.SigningMethodHS256, jwt.SigningMethodHS384, jwt.SigningMethodHS512:
 		// if the signing method is HMAC, use the signing key data as the signing key and verify key
 		signingKey = signingKeyData
 		verifyKey = verifyKeyData
-	} else {
+	default:
 		// else, return an error
 		return nil, ErrUnsupportedSigningMethod
 	}

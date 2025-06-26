@@ -21,17 +21,18 @@ func NewSlogLogger(handler string, addSource bool, level slog.Leveler) (*SlogLog
 		AddSource: addSource,
 		Level:     level,
 	}
-	if handler == "text" {
+	switch handler {
+	case "text":
 		slog.SetDefault(slog.New(&wrappedSlogHandler{
 			innerHandler: slog.NewTextHandler(os.Stderr, options),
 			extractAttrs: []func(context.Context) []slog.Attr{extractTracingAttrs},
 		}))
-	} else if handler == "json" {
+	case "json":
 		slog.SetDefault(slog.New(&wrappedSlogHandler{
 			innerHandler: slog.NewJSONHandler(os.Stderr, options),
 			extractAttrs: []func(context.Context) []slog.Attr{extractTracingAttrs},
 		}))
-	} else {
+	default:
 		return nil, errors.New("unknown logging handler")
 	}
 	return &SlogLogger{logger: slog.Default()}, nil

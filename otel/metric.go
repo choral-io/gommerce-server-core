@@ -21,23 +21,24 @@ func NewMeterProvider(cfg config.MetricConfig, res *resource.Resource) (metric.M
 	protocol := cfg.GetExporterConfig().GetProtocol()
 	var exporter sdkmetric.Exporter
 	var err error
-	if protocol == "otlp-grpc" {
+	switch protocol {
+	case "otlp-grpc":
 		exporter, err = otlpmetricgrpc.New(ctx,
 			otlpmetricgrpc.WithEndpoint(cfg.GetExporterConfig().GetEndpoint()),
 			otlpmetricgrpc.WithInsecure(),
 			otlpmetricgrpc.WithTimeout(2*time.Second),
 		)
-	} else if protocol == "otlp-http" {
+	case "otlp-http":
 		exporter, err = otlpmetrichttp.New(ctx,
 			otlpmetrichttp.WithEndpoint(cfg.GetExporterConfig().GetEndpoint()),
 			otlpmetrichttp.WithInsecure(),
 			otlpmetrichttp.WithTimeout(2*time.Second),
 		)
-	} else if protocol == "stdout" {
+	case "stdout":
 		exporter, err = stdout.New(stdout.WithPrettyPrint())
-	} else if protocol == "noop" {
+	case "noop":
 		exporter = nil
-	} else {
+	default:
 		return nil, fmt.Errorf("invalid metric exporter protocol: %s", protocol)
 	}
 	if err != nil {

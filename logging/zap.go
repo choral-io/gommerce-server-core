@@ -20,11 +20,12 @@ var _ Logger = (*ZapLogger)(nil)
 
 func NewZapLogger(preset string) (*ZapLogger, error) {
 	var f func(options ...zap.Option) (*zap.Logger, error)
-	if preset == "development" {
+	switch preset {
+	case "development":
 		f = zap.NewDevelopment
-	} else if preset == "production" {
+	case "production":
 		f = zap.NewProduction
-	} else {
+	default:
 		return nil, errors.New("unknown logging preset")
 	}
 	if l, err := f(zap.AddCallerSkip(2)); err != nil {

@@ -19,7 +19,7 @@ server:
       exposed-headers:
         - Content-Length
         - Content-Type
-      max-age: 5
+      max-age: 0
       allow-credentials: false
       allow-private-network: false
       options-passthrough: false
