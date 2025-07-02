@@ -10,8 +10,8 @@ require (
 	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.3.2
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.1
 	github.com/nats-io/nats.go v1.43.0
-	github.com/redis/rueidis v1.0.61
-	github.com/redis/rueidis/rueidisotel v1.0.61
+	github.com/redis/rueidis v1.0.62
+	github.com/redis/rueidis/rueidisotel v1.0.62
 	github.com/rs/cors v1.11.1
 	github.com/shopspring/decimal v1.4.0
 	github.com/uptrace/bun v1.2.14
