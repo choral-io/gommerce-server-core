@@ -1,42 +1,21 @@
 package config
 
 import (
-	"bytes"
-	"fmt"
 	"log/slog"
 	"os"
 	"time"
 
-	yaml "github.com/goccy/go-yaml"
 	"github.com/google/uuid"
 	"github.com/rs/cors"
 )
 
 type rootConfig struct {
-	yamlDoc   []byte
 	Server    *serverConfig
 	Snowflake *snowflakeConfig
 	Logging   *loggingConfig
 	Trace     *traceConfig
 	Metric    *metricConfig
 	Secure    *secureConfig
-}
-
-func (c *rootConfig) GetValue(path string, value any) error {
-	if len(c.yamlDoc) > 0 {
-		pyp, err := yaml.PathString(path) // parsed YAML path
-		if err != nil {
-			return fmt.Errorf("failed to parse YAML path %q: %w", path, err)
-		}
-
-		err = pyp.Read(bytes.NewReader(c.yamlDoc), value)
-		if err != nil {
-			return fmt.Errorf("failed to read value at path %q: %w", path, err)
-		}
-	} else {
-		return ErrConfigNotLoaded
-	}
-	return nil
 }
 
 func (c *rootConfig) GetServerConfig() ServerConfig {
