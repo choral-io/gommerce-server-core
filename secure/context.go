@@ -8,6 +8,9 @@ type identityKey struct{}
 
 // IdentityFromContext returns the identity from the given context.
 func IdentityFromContext(ctx context.Context) *Identity {
+	if ctx == nil {
+		return nil
+	}
 	if id, ok := ctx.Value(identityKey{}).(*Identity); ok {
 		return id
 	}

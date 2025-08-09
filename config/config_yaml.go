@@ -49,11 +49,10 @@ func LoadYamlConfig() (RootConfig, error) {
 		return nil, err
 	}
 	raw = []byte(os.ExpandEnv(string(raw)))
-	cfg := &yamlRootConfig{}
+	cfg := &yamlRootConfig{yamlDoc: raw}
 	if err := yaml.Unmarshal(raw, &cfg.rootConfig); err != nil {
 		return nil, err
 	} else {
-		cfg.yamlDoc = raw
 		return cfg, nil
 	}
 }
