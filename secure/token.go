@@ -10,7 +10,11 @@ import (
 )
 
 const (
-	TokenTypeBearer  = "Bearer"
+	// TokenTypeBearer represents a standard bearer token used for
+	// accessing protected resources.
+	TokenTypeBearer = "Bearer"
+	// TokenTypeRefresh represents a refresh token used to obtain new
+	// access tokens.
 	TokenTypeRefresh = "Refresh"
 )
 
@@ -38,22 +42,27 @@ func NewToken(ttype, realm, client, subject string, scope []string) *Token {
 	}
 }
 
+// Realm returns the realm associated with the token.
 func (t *Token) Realm() string {
 	return t.realm
 }
 
+// Client returns the client identifier for which the token was issued.
 func (t *Token) Client() string {
 	return t.client
 }
 
+// Subject returns the subject (typically a user identifier) of the token.
 func (t *Token) Subject() string {
 	return t.subject
 }
 
+// Scope returns all scopes granted to the token.
 func (t *Token) Scope() []string {
 	return t.scope
 }
 
+// HasScope reports whether the token grants the specified scope.
 func (t *Token) HasScope(scope string) bool {
 	if t != nil {
 		for _, s := range t.scope {
@@ -65,14 +74,17 @@ func (t *Token) HasScope(scope string) bool {
 	return false
 }
 
+// IssuedAt returns the time at which the token was issued.
 func (t *Token) IssuedAt() time.Time {
 	return t.issuedAt
 }
 
+// ExpiresAt returns the token expiration time.
 func (t *Token) ExpiresAt() time.Time {
 	return t.expiresAt
 }
 
+// IsExpired reports whether the token is expired.
 func (t *Token) IsExpired() bool {
 	return !t.expiresAt.IsZero() && t.expiresAt.Before(time.Now().UTC())
 }
@@ -96,6 +108,7 @@ type InMemoryTokenStore struct {
 
 var _ TokenStore = (*InMemoryTokenStore)(nil)
 
+// Issue stores the provided token in memory and returns its generated ID.
 func (s *InMemoryTokenStore) Issue(_ context.Context, token *Token, ttl time.Duration) (string, error) {
 	token.id = uuid.NewString()
 	token.issuedAt = time.Now().UTC()
@@ -104,6 +117,7 @@ func (s *InMemoryTokenStore) Issue(_ context.Context, token *Token, ttl time.Dur
 	return token.id, nil
 }
 
+// Renew updates the token's expiry and returns its ID if found.
 func (s *InMemoryTokenStore) Renew(_ context.Context, value string, ttl time.Duration) (string, error) {
 	if value, exists := s.tokens.Load(value); exists {
 		token := value.(*Token)
@@ -114,6 +128,7 @@ func (s *InMemoryTokenStore) Renew(_ context.Context, value string, ttl time.Dur
 	return "", ErrInvalidToken
 }
 
+// Verify looks up a token by its ID and checks its expiry.
 func (s *InMemoryTokenStore) Verify(_ context.Context, value string) (*Token, error) {
 	if value, exists := s.tokens.Load(value); exists {
 		token := value.(*Token)
@@ -126,6 +141,7 @@ func (s *InMemoryTokenStore) Verify(_ context.Context, value string) (*Token, er
 	return nil, ErrInvalidToken
 }
 
+// Revoke removes a token from the store and returns it if present.
 func (s *InMemoryTokenStore) Revoke(_ context.Context, value string) (*Token, error) {
 	if value, exists := s.tokens.LoadAndDelete(value); exists {
 		token := value.(*Token)

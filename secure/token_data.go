@@ -15,6 +15,7 @@ type tokenData struct {
 	ExpiresAt time.Time `json:"expires_at,omitempty"`
 }
 
+// MarshalJSON implements json.Marshaler for Token.
 func (t *Token) MarshalJSON() ([]byte, error) {
 	data := &tokenData{
 		TType:     t.ttype,
@@ -28,6 +29,7 @@ func (t *Token) MarshalJSON() ([]byte, error) {
 	return json.Marshal(data)
 }
 
+// UnmarshalJSON implements json.Unmarshaler for Token.
 func (t *Token) UnmarshalJSON(data []byte) error {
 	var td tokenData
 	if err := json.Unmarshal(data, &td); err != nil {

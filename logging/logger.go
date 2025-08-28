@@ -8,11 +8,17 @@ import (
 type Level int8
 
 const (
+	// LevelDebug is used for verbose debugging information.
 	LevelDebug Level = -4
-	LevelInfo  Level = 0
-	LevelWarn  Level = 4
+	// LevelInfo records informational messages.
+	LevelInfo Level = 0
+	// LevelWarn reports non-critical issues.
+	LevelWarn Level = 4
+	// LevelError logs errors that need attention.
 	LevelError Level = 8
+	// LevelPanic logs critical failures before panicking.
 	LevelPanic Level = 16
+	// LevelFatal logs unrecoverable errors before exiting.
 	LevelFatal Level = 20
 )
 

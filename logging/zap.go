@@ -18,6 +18,8 @@ type ZapLogger struct {
 
 var _ Logger = (*ZapLogger)(nil)
 
+// NewZapLogger creates a ZapLogger using the given preset ("development" or
+// "production").
 func NewZapLogger(preset string) (*ZapLogger, error) {
 	var f func(options ...zap.Option) (*zap.Logger, error)
 	switch preset {
@@ -62,6 +64,7 @@ func argsToFields(args []any) []zap.Field {
 	return fields
 }
 
+// With returns a new ZapLogger with additional structured fields attached.
 func (l *ZapLogger) With(args ...any) Logger {
 	return &ZapLogger{logger: l.logger.With(argsToFields(args)...)}
 }
@@ -74,30 +77,37 @@ func (l *ZapLogger) log(ctx context.Context, level Level, message string, args .
 	l.logger.Log(zapcore.Level(level/4), message, fields...)
 }
 
+// Log logs a message at the specified level.
 func (l *ZapLogger) Log(ctx context.Context, level Level, message string, args ...any) {
 	l.log(ctx, level, message, args...)
 }
 
+// Debug logs a message at LevelDebug.
 func (l *ZapLogger) Debug(ctx context.Context, message string, args ...any) {
 	l.log(ctx, LevelDebug, message, args...)
 }
 
+// Info logs a message at LevelInfo.
 func (l *ZapLogger) Info(ctx context.Context, message string, args ...any) {
 	l.log(ctx, LevelInfo, message, args...)
 }
 
+// Warn logs a message at LevelWarn.
 func (l *ZapLogger) Warn(ctx context.Context, message string, args ...any) {
 	l.log(ctx, LevelWarn, message, args...)
 }
 
+// Error logs a message at LevelError.
 func (l *ZapLogger) Error(ctx context.Context, message string, args ...any) {
 	l.log(ctx, LevelError, message, args...)
 }
 
+// Panic logs a message at LevelPanic.
 func (l *ZapLogger) Panic(ctx context.Context, message string, args ...any) {
 	l.log(ctx, LevelPanic, message, args...)
 }
 
+// Fatal logs a message at LevelFatal.
 func (l *ZapLogger) Fatal(ctx context.Context, message string, args ...any) {
 	l.log(ctx, LevelFatal, message, args...)
 }
