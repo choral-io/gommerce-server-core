@@ -6,6 +6,8 @@ import (
 )
 
 const (
+	// DefaultPasswordSymbols defines the characters used when generating a
+	// random password if no custom alphabet is provided.
 	DefaultPasswordSymbols = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()-_=+,.?/:;{}[]`~"
 )
 

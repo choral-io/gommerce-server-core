@@ -10,9 +10,13 @@ import (
 )
 
 var (
+	// ErrConfigNotLoaded is returned when configuration access is attempted
+	// before the configuration has been fully loaded.
 	ErrConfigNotLoaded = errors.New("config not loaded")
 )
 
+// ExtractSectionsResult is a container of individual configuration sections
+// returned from ExtractSections for dependency injection via fx.Out.
 type ExtractSectionsResult struct {
 	fx.Out
 
@@ -52,6 +56,9 @@ func ExtractSections(cfg RootConfig) ExtractSectionsResult {
 	return result
 }
 
+// RootConfig represents the top-level configuration container loaded from
+// external sources. Implementations must provide access to specific
+// configuration sections used throughout the application.
 type RootConfig interface {
 	// GetValue retrieves a value from the configuration by its path.
 	// The path is a valid JSON path, e.g. "$.server.http.addr".
@@ -64,6 +71,8 @@ type RootConfig interface {
 	GetSecureConfig() SecureConfig
 }
 
+// ServerConfig contains runtime configuration for the HTTP/gRPC server and
+// related components.
 type ServerConfig interface {
 	GetDebug() bool
 	GetName() string
@@ -77,21 +86,25 @@ type ServerConfig interface {
 	GetNATSConfig() ServerNATSConfig
 }
 
+// ServerHTTPConfig defines the configuration for the embedded HTTP server.
 type ServerHTTPConfig interface {
 	GetAddr() string
 	GetCors() cors.Options
 }
 
+// ServerDBConfig captures database connection settings.
 type ServerDBConfig interface {
 	GetDriver() string
 	GetSource() string
 }
 
+// ServerRedisConfig describes the Redis connection configuration.
 type ServerRedisConfig interface {
 	GetInitAddr() string
 	GetSelectDB() int
 }
 
+// ServerLockerConfig defines options for the distributed locking mechanism.
 type ServerLockerConfig interface {
 	GetKeyPrefix() string
 	GetKeyValidity() time.Duration
@@ -102,6 +115,7 @@ type ServerLockerConfig interface {
 	GetFallbackSETPX() bool
 }
 
+// ServerMinIOConfig specifies settings for the MinIO object storage backend.
 type ServerMinIOConfig interface {
 	GetEndpoint() string
 	GetAccessKey() string
@@ -109,11 +123,13 @@ type ServerMinIOConfig interface {
 	GetUseSSL() bool
 }
 
+// ServerNATSConfig holds the NATS connection options.
 type ServerNATSConfig interface {
 	GetSeedURL() string
 	GetNoEcho() bool
 }
 
+// SnowflakeConfig exposes configuration for the Snowflake ID generator.
 type SnowflakeConfig interface {
 	GetIdEpoch() int64
 	GetClusterId() int64
@@ -124,45 +140,54 @@ type SnowflakeConfig interface {
 	GetSequenceBits() int32
 }
 
+// LoggingConfig selects logging implementations and presets for the service.
 type LoggingConfig interface {
 	GetZapLogger() LoggingZapLoggerConfig
 	GetSlogLogger() LoggingSlogLoggerConfig
 }
 
+// LoggingZapLoggerConfig configures the zap logger preset.
 type LoggingZapLoggerConfig interface {
 	GetPreset() string
 }
 
+// LoggingSlogLoggerConfig controls settings for slog logging.
 type LoggingSlogLoggerConfig interface {
 	GetHandler() string
 	GetAddSource() bool
 	GetLeveler() slog.Leveler
 }
 
+// TraceConfig describes OpenTelemetry tracing options.
 type TraceConfig interface {
 	GetExporterConfig() TraceExporterConfig
 }
 
+// TraceExporterConfig defines options for the trace exporter.
 type TraceExporterConfig interface {
 	GetProtocol() string
 	GetEndpoint() string
 	GetInsecure() bool
 }
 
+// MetricConfig describes OpenTelemetry metrics configuration.
 type MetricConfig interface {
 	GetExporterConfig() MetricExporterConfig
 }
 
+// MetricExporterConfig defines options for the metrics exporter.
 type MetricExporterConfig interface {
 	GetProtocol() string
 	GetEndpoint() string
 	GetInsecure() bool
 }
 
+// SecureConfig encompasses security and token-related settings.
 type SecureConfig interface {
 	GetToken() SecureTokenConfig
 }
 
+// SecureTokenConfig provides parameters for issuing and verifying tokens.
 type SecureTokenConfig interface {
 	GetStore() string
 	GetBucket() string

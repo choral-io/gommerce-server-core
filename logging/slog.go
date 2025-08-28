@@ -16,6 +16,9 @@ type SlogLogger struct {
 
 var _ Logger = (*SlogLogger)(nil)
 
+// NewSlogLogger constructs a new SlogLogger using the provided handler name
+// ("text" or "json"), whether to include source information, and the minimum
+// log level.
 func NewSlogLogger(handler string, addSource bool, level slog.Leveler) (*SlogLogger, error) {
 	options := &slog.HandlerOptions{
 		AddSource: addSource,
@@ -38,6 +41,8 @@ func NewSlogLogger(handler string, addSource bool, level slog.Leveler) (*SlogLog
 	return &SlogLogger{logger: slog.Default()}, nil
 }
 
+// With creates a new SlogLogger that appends the supplied arguments to each log
+// call's context.
 func (l *SlogLogger) With(args ...any) Logger {
 	return &SlogLogger{logger: l.logger.With(args...)}
 }
@@ -58,31 +63,38 @@ func (l *SlogLogger) log(ctx context.Context, level Level, message string, args 
 	_ = l.logger.Handler().Handle(ctx, r)
 }
 
+// Log logs a message at the specified level.
 func (l *SlogLogger) Log(ctx context.Context, level Level, message string, args ...any) {
 	l.log(ctx, level, message, args...)
 }
 
+// Debug logs a message at LevelDebug.
 func (l *SlogLogger) Debug(ctx context.Context, message string, args ...any) {
 	l.log(ctx, LevelDebug, message, args...)
 }
 
+// Info logs a message at LevelInfo.
 func (l *SlogLogger) Info(ctx context.Context, message string, args ...any) {
 	l.log(ctx, LevelInfo, message, args...)
 }
 
+// Warn logs a message at LevelWarn.
 func (l *SlogLogger) Warn(ctx context.Context, message string, args ...any) {
 	l.log(ctx, LevelWarn, message, args...)
 }
 
+// Error logs a message at LevelError.
 func (l *SlogLogger) Error(ctx context.Context, message string, args ...any) {
 	l.log(ctx, LevelError, message, args...)
 }
 
+// Panic logs a message at LevelPanic then panics.
 func (l *SlogLogger) Panic(ctx context.Context, message string, args ...any) {
 	l.log(ctx, LevelPanic, message, args...)
 	panic(message)
 }
 
+// Fatal logs a message at LevelFatal then exits the process.
 func (l *SlogLogger) Fatal(ctx context.Context, message string, args ...any) {
 	l.log(ctx, LevelFatal, message, args...)
 	os.Exit(1)

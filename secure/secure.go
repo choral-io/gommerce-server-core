@@ -11,8 +11,12 @@ import (
 )
 
 const (
-	AuthHeaderKey    = "Authorization"
-	AuthSchemaBasic  = "basic"
+	// AuthHeaderKey is the HTTP header that carries authentication
+	// credentials such as Basic or Bearer tokens.
+	AuthHeaderKey = "Authorization"
+	// AuthSchemaBasic represents HTTP Basic authentication.
+	AuthSchemaBasic = "basic"
+	// AuthSchemaBearer represents HTTP Bearer token authentication.
 	AuthSchemaBearer = "bearer"
 )
 
