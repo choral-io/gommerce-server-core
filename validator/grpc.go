@@ -4,6 +4,7 @@ import (
 	"context"
 	"log/slog"
 
+	"buf.build/go/protovalidate"
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -17,6 +18,14 @@ func grpcStatusErr(ctx context.Context, err error) error {
 		errs = []error{err}
 	case validationMultiError:
 		errs = err.AllErrors()
+	case *protovalidate.ValidationError:
+		errs = make([]error, len(err.Violations))
+		for i, v := range err.Violations {
+			errs[i] = ValidationError{
+				field:  protovalidate.FieldPathString(v.Proto.GetField()),
+				reason: v.Proto.GetMessage(),
+			}
+		}
 	default:
 		errs = nil
 	}
