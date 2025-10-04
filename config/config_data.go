@@ -405,7 +405,7 @@ type snowflakeConfig struct {
 
 func (c *snowflakeConfig) GetIdEpoch() int64 {
 	if c.IdEpoch == nil {
-		return int64(1640995200000) // Defaults to: 2022-01-01T00:00:00Z
+		return int64(1704067200000) // Defaults to: 2024-01-01T00:00:00Z
 	} else {
 		return *c.IdEpoch
 	}

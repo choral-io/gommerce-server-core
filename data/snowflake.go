@@ -12,19 +12,23 @@ import (
 )
 
 const (
-	DefaultIdEpoch = int64(1704067200000) // Defaults to: 2024-01-01T00:00:00Z
+	DefaultIdEpoch   = int64(1704067200000)   // Defaults to: 2024-01-01T00:00:00Z
+	TimestampBits    = 41                     // Number of bits for timestamp
+	MaxPayloadBits   = 64 - 1 - TimestampBits // Maximum bits available for cluster + worker + sequence
+	ClockWaitTimeout = 2                      // Seconds to wait for clock recovery
 )
 
 var (
 	defaultIdWorker atomic.Value
 
-	ErrIdEpochOutOfRange       = errors.New("the value of 'idEpoch' must be greater than 0")
-	ErrClusterIdBitsOutOfRange = errors.New("the value of 'clusterIdBits' must be greater than 0")
-	ErrWorkerIdBitsOutOfRange  = errors.New("the value of 'workerIdBits' must be greater than 0")
-	ErrSequenceBitsOutOfRange  = errors.New("the value of 'sequenceBits' must be greater than 0")
-	ErrClusterIdOutOfRange     = errors.New("the value of 'clusterId' out of range")
-	ErrWorkerIdOutOfRange      = errors.New("the value of 'workerId' out of range")
-	ErrTimeMilliBitsOutOfRange = errors.New("the sum of 'clusterIdBits', 'workerIdBits' and 'sequenceBits' must be less than 23")
+	ErrSeqRequired             = errors.New("seq required when workerSeqKey is set")
+	ErrIdEpochOutOfRange       = errors.New("idEpoch must be positive")
+	ErrClusterIdBitsOutOfRange = errors.New("clusterIdBits must be positive")
+	ErrWorkerIdBitsOutOfRange  = errors.New("workerIdBits must be positive")
+	ErrSequenceBitsOutOfRange  = errors.New("sequenceBits must be positive")
+	ErrClusterIdOutOfRange     = errors.New("clusterId out of range")
+	ErrWorkerIdOutOfRange      = errors.New("workerId out of range")
+	ErrIdBitsExceedLimit       = errors.New("total id bits exceed limit")
 )
 
 func init() {
@@ -59,7 +63,8 @@ type IdWorker interface {
 	NextHex() string
 }
 
-// idWorker is used to generate unique id.
+// idWorker is used to generate unique id using the Snowflake algorithm.
+// The generated ID structure: [1 bit unused][41 bits timestamp][cluster bits][worker bits][sequence bits]
 type idWorker struct {
 	sync.Mutex
 	idEpoch       int64
@@ -73,17 +78,48 @@ type idWorker struct {
 	lastMillis    int64
 }
 
+// getNextMillis returns the next valid millisecond timestamp.
+// It handles clock backwards detection and ensures time moves forward.
+func (w *idWorker) getNextMillis() int64 {
+	nextMillis := time.Now().UnixMilli()
+
+	// Handle clock moved backwards
+	if nextMillis < w.lastMillis {
+		slog.Warn("clock moved backwards",
+			slog.Int64("last.millis", w.lastMillis),
+			slog.Int64("current.millis", nextMillis))
+
+		// Wait for clock to catch up or timeout
+		timeout := time.After(ClockWaitTimeout * time.Second)
+		for nextMillis <= w.lastMillis {
+			select {
+			case <-timeout:
+				slog.Error("clock did not recover within timeout, aborting id generation")
+				panic("snowflake: clock moved backwards and timeout waiting for recovery")
+			default:
+				time.Sleep(time.Millisecond)
+				nextMillis = time.Now().UnixMilli()
+			}
+		}
+	}
+
+	return nextMillis
+}
+
 // NextInt64 returns the next unique id in int64.
+// This method is thread-safe and handles clock backwards movement.
 func (w *idWorker) NextInt64() int64 {
 	w.Lock()
 	defer w.Unlock()
-	nextMillis := time.Now().UnixMilli()
+
+	nextMillis := w.getNextMillis()
+
 	if w.lastMillis == nextMillis {
 		w.sequenceValue = (w.sequenceValue + 1) & w.sequenceMask
 		if w.sequenceValue == 0 {
-			nextMillis = time.Now().UnixMilli()
-			for w.lastMillis > nextMillis {
-				nextMillis = time.Now().UnixMilli()
+			// Sequence overflow, wait for next millisecond
+			for nextMillis == w.lastMillis {
+				nextMillis = w.getNextMillis()
 			}
 		}
 	} else {
@@ -121,7 +157,7 @@ func NewIdWorker(cfg config.SnowflakeConfig, seq Seq) (IdWorker, error) {
 	workerSeqKey := cfg.GetWorkerSeqKey()
 	if workerSeqKey != "" {
 		if seq == nil {
-			return nil, errors.New("redis client is not initialized")
+			return nil, ErrSeqRequired
 		}
 		if v, err := seq.Next(workerSeqKey, int64(0), int64(1)<<cfg.GetWorkerIdBits()-1); err != nil {
 			return nil, err
@@ -142,14 +178,19 @@ func NewIdWorker(cfg config.SnowflakeConfig, seq Seq) (IdWorker, error) {
 	if sequenceBits <= 0 {
 		return nil, ErrSequenceBitsOutOfRange
 	}
-	if clusterIdBits+workerIdBits+sequenceBits >= 23 {
-		return nil, ErrTimeMilliBitsOutOfRange
+	// Snowflake format: 1 bit (unused) + 41 bits (timestamp) + remaining bits for cluster/worker/sequence
+	// Total remaining bits: 64 - 1 - 41 = 22 bits
+	if m := clusterIdBits + workerIdBits + sequenceBits; m > MaxPayloadBits {
+		return nil, fmt.Errorf(
+			"total bits (%d) exceeds maximum %d: %w",
+			m, MaxPayloadBits, ErrIdBitsExceedLimit,
+		)
 	}
 	if m := int64(1)<<clusterIdBits - 1; clusterId < 0 || clusterId > m {
-		return nil, fmt.Errorf("the value of clusterId must be in the range 0 to %d: %w", m, ErrClusterIdOutOfRange)
+		return nil, fmt.Errorf("clusterId must be 0-%d: %w", m, ErrClusterIdOutOfRange)
 	}
 	if m := int64(1)<<workerIdBits - 1; workerId < 0 || workerId > m {
-		return nil, fmt.Errorf("the value of workerId must be in the range 0 to %d: %w", m, ErrWorkerIdOutOfRange)
+		return nil, fmt.Errorf("workerId must be 0-%d: %w", m, ErrWorkerIdOutOfRange)
 	}
 
 	return &idWorker{
