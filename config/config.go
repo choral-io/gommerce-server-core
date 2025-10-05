@@ -131,12 +131,12 @@ type ServerNATSConfig interface {
 
 // SnowflakeConfig exposes configuration for the Snowflake ID generator.
 type SnowflakeConfig interface {
-	GetIdEpoch() int64
-	GetClusterId() int64
-	GetWorkerId() int64
+	GetIDEpoch() int64
+	GetClusterID() int64
+	GetWorkerID() int64
 	GetWorkerSeqKey() string
-	GetClusterIdBits() int32
-	GetWorkerIdBits() int32
+	GetClusterIDBits() int32
+	GetWorkerIDBits() int32
 	GetSequenceBits() int32
 }
 

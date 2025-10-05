@@ -11,8 +11,8 @@ import (
 	"github.com/google/uuid"
 )
 
-// JsonWebTokenStore is a token store that uses JSON Web Tokens (JWT) to store tokens.
-type JsonWebTokenStore struct {
+// JSONWebTokenStore is a token store that uses JSON Web Tokens (JWT) to store tokens.
+type JSONWebTokenStore struct {
 	tokenIssuer   string
 	tokenAudience string
 	signingMethod jwt.SigningMethod
@@ -20,7 +20,7 @@ type JsonWebTokenStore struct {
 	verifyKey     any
 }
 
-var _ TokenStore = (*JsonWebTokenStore)(nil)
+var _ TokenStore = (*JSONWebTokenStore)(nil)
 
 // ExtendedClaims is a custom claims type that extends the default claims with additional claims.
 type ExtendedClaims struct {
@@ -52,8 +52,8 @@ func (k keyData) toRSAPublicKey() (*rsa.PublicKey, error) {
 	return jwt.ParseRSAPublicKeyFromPEM(k)
 }
 
-// NewJsonWebTokenStore creates a new JSON Web Token (JWT) token store.
-func NewJsonWebTokenStore(tokenIssuer, tokenAudience, signingAlgName string, signingKeyData, verifyKeyData keyData) (*JsonWebTokenStore, error) {
+// NewJSONWebTokenStore creates a new JSON Web Token (JWT) token store.
+func NewJSONWebTokenStore(tokenIssuer, tokenAudience, signingAlgName string, signingKeyData, verifyKeyData keyData) (*JSONWebTokenStore, error) {
 	// jwt.MarshalSingleStringAsArray is a global variable that controls whether a single string value is marshalled as a string or an array of strings.
 	// set to true to marshal single string values as arrays
 	jwt.MarshalSingleStringAsArray = false
@@ -82,7 +82,7 @@ func NewJsonWebTokenStore(tokenIssuer, tokenAudience, signingAlgName string, sig
 		return nil, ErrUnsupportedSigningMethod
 	}
 	// return a new JSON Web Token (JWT) token store
-	return &JsonWebTokenStore{
+	return &JSONWebTokenStore{
 		tokenIssuer:   tokenIssuer,
 		tokenAudience: tokenAudience,
 		signingMethod: signingMethod,
@@ -91,7 +91,7 @@ func NewJsonWebTokenStore(tokenIssuer, tokenAudience, signingAlgName string, sig
 	}, nil
 }
 
-func (s *JsonWebTokenStore) parse(value string) (*jwt.Token, error) {
+func (s *JSONWebTokenStore) parse(value string) (*jwt.Token, error) {
 	// parse the token and verify the signature
 	token, err := jwt.ParseWithClaims(value, &ExtendedClaims{}, func(token *jwt.Token) (any, error) {
 		return s.verifyKey, nil
@@ -105,7 +105,7 @@ func (s *JsonWebTokenStore) parse(value string) (*jwt.Token, error) {
 	return token, nil
 }
 
-func (s *JsonWebTokenStore) Issue(_ context.Context, token *Token, ttl time.Duration) (string, error) {
+func (s *JSONWebTokenStore) Issue(_ context.Context, token *Token, ttl time.Duration) (string, error) {
 	token.id = uuid.New().String()            // generate a new UUID for the token id
 	token.issuedAt = time.Now().UTC()         // set the token create time
 	token.expiresAt = token.issuedAt.Add(ttl) // set the token expiry time
@@ -128,7 +128,7 @@ func (s *JsonWebTokenStore) Issue(_ context.Context, token *Token, ttl time.Dura
 	return jwt.NewWithClaims(s.signingMethod, claims).SignedString(s.signingKey)
 }
 
-func (s *JsonWebTokenStore) Renew(ctx context.Context, value string, ttl time.Duration) (string, error) {
+func (s *JSONWebTokenStore) Renew(ctx context.Context, value string, ttl time.Duration) (string, error) {
 	// parse the token and verify the signature
 	token, err := s.parse(value)
 	if err != nil {
@@ -143,7 +143,7 @@ func (s *JsonWebTokenStore) Renew(ctx context.Context, value string, ttl time.Du
 	return s.Issue(ctx, NewToken(TokenTypeBearer, claims.Realm, claims.Client, claims.Subject, strings.Split(claims.Scope, " ")), ttl)
 }
 
-func (s *JsonWebTokenStore) Verify(_ context.Context, value string) (*Token, error) {
+func (s *JSONWebTokenStore) Verify(_ context.Context, value string) (*Token, error) {
 	// parse the token and verify the signature
 	token, err := s.parse(value)
 	if err != nil {
@@ -166,7 +166,7 @@ func (s *JsonWebTokenStore) Verify(_ context.Context, value string) (*Token, err
 	}, nil
 }
 
-func (s *JsonWebTokenStore) Revoke(_ context.Context, _ string) (*Token, error) {
+func (s *JSONWebTokenStore) Revoke(_ context.Context, _ string) (*Token, error) {
 	// Revoke is not supported for the JSON Web Token (JWT) token store.
 	return nil, ErrUnsupportedOperation
 }

@@ -394,36 +394,36 @@ func (c *serverNATSConfig) GetNoEcho() bool {
 }
 
 type snowflakeConfig struct {
-	IdEpoch       *int64  `yaml:"id-epoch"`
-	ClusterId     *int64  `yaml:"cluster-id"`
-	WorkerId      *int64  `yaml:"worker-id"`
+	IDEpoch       *int64  `yaml:"id-epoch"`
+	ClusterID     *int64  `yaml:"cluster-id"`
+	WorkerID      *int64  `yaml:"worker-id"`
 	WorkerSeqKey  *string `yaml:"worker-seq-key"`
-	ClusterIdBits *int32  `yaml:"cluster-id-bits"`
-	WorkerIdBits  *int32  `yaml:"worker-id-bits"`
+	ClusterIDBits *int32  `yaml:"cluster-id-bits"`
+	WorkerIDBits  *int32  `yaml:"worker-id-bits"`
 	SequenceBits  *int32  `yaml:"sequence-bits"`
 }
 
-func (c *snowflakeConfig) GetIdEpoch() int64 {
-	if c.IdEpoch == nil {
+func (c *snowflakeConfig) GetIDEpoch() int64 {
+	if c.IDEpoch == nil {
 		return int64(1704067200000) // Defaults to: 2024-01-01T00:00:00Z
 	} else {
-		return *c.IdEpoch
+		return *c.IDEpoch
 	}
 }
 
-func (c *snowflakeConfig) GetClusterId() int64 {
-	if c.ClusterId == nil {
+func (c *snowflakeConfig) GetClusterID() int64 {
+	if c.ClusterID == nil {
 		return 0
 	} else {
-		return *c.ClusterId
+		return *c.ClusterID
 	}
 }
 
-func (c *snowflakeConfig) GetWorkerId() int64 {
-	if c.WorkerId == nil {
+func (c *snowflakeConfig) GetWorkerID() int64 {
+	if c.WorkerID == nil {
 		return 0
 	} else {
-		return *c.WorkerId
+		return *c.WorkerID
 	}
 }
 
@@ -435,19 +435,19 @@ func (c *snowflakeConfig) GetWorkerSeqKey() string {
 	}
 }
 
-func (c *snowflakeConfig) GetClusterIdBits() int32 {
-	if c.ClusterIdBits == nil {
+func (c *snowflakeConfig) GetClusterIDBits() int32 {
+	if c.ClusterIDBits == nil {
 		return 5
 	} else {
-		return *c.ClusterIdBits
+		return *c.ClusterIDBits
 	}
 }
 
-func (c *snowflakeConfig) GetWorkerIdBits() int32 {
-	if c.WorkerIdBits == nil {
+func (c *snowflakeConfig) GetWorkerIDBits() int32 {
+	if c.WorkerIDBits == nil {
 		return 5
 	} else {
-		return *c.WorkerIdBits
+		return *c.WorkerIDBits
 	}
 }
 

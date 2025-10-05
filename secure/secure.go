@@ -30,7 +30,7 @@ func NewTokenStore(cfg config.SecureTokenConfig, rdb rueidis.Client) (TokenStore
 		if alg == nil {
 			return nil, fmt.Errorf("unknown signing method: %s", cfg.GetSigningMethod())
 		}
-		return NewJsonWebTokenStore(cfg.GetIssuer(), cfg.GetAudience(), cfg.GetSigningMethod(), cfg.GetPrivateKey(), cfg.GetPublicKey())
+		return NewJSONWebTokenStore(cfg.GetIssuer(), cfg.GetAudience(), cfg.GetSigningMethod(), cfg.GetPrivateKey(), cfg.GetPublicKey())
 	case "redis":
 		if rdb == nil {
 			return nil, errors.New("redis client is required for redis token store")

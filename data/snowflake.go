@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	DefaultIdEpoch   = int64(1704067200000)        // Defaults to: 2024-01-01T00:00:00Z
+	DefaultIDEpoch   = int64(1704067200000)        // Defaults to: 2024-01-01T00:00:00Z
 	TimestampBits    = 41                          // Number of bits for timestamp
 	MaxTimestamp     = int64(1)<<TimestampBits - 1 // Maximum timestamp value
 	MaxPayloadBits   = 64 - 1 - TimestampBits      // Maximum bits available for cluster + worker + sequence
@@ -20,46 +20,46 @@ const (
 )
 
 var (
-	defaultIdWorker atomic.Value
+	defaultIDWorker atomic.Value
 
 	ErrSeqRequired             = errors.New("seq required when workerSeqKey is set")
-	ErrIdEpochOutOfRange       = errors.New("idEpoch must be positive")
-	ErrClusterIdBitsOutOfRange = errors.New("clusterIdBits must be positive")
-	ErrWorkerIdBitsOutOfRange  = errors.New("workerIdBits must be positive")
+	ErrIDEpochOutOfRange       = errors.New("idEpoch must be positive")
+	ErrClusterIDBitsOutOfRange = errors.New("clusterIDBits must be positive")
+	ErrWorkerIDBitsOutOfRange  = errors.New("workerIDBits must be positive")
 	ErrSequenceBitsOutOfRange  = errors.New("sequenceBits must be positive")
-	ErrClusterIdOutOfRange     = errors.New("clusterId out of range")
-	ErrWorkerIdOutOfRange      = errors.New("workerId out of range")
-	ErrIdBitsExceedLimit       = errors.New("total id bits exceed limit")
+	ErrClusterIDOutOfRange     = errors.New("clusterID out of range")
+	ErrWorkerIDOutOfRange      = errors.New("workerID out of range")
+	ErrIDBitsExceedLimit       = errors.New("total ID bits exceed limit")
 )
 
 func init() {
-	var idw IdWorker = &idWorker{
-		idEpoch:       DefaultIdEpoch,
-		clusterId:     0,
-		workerId:      0,
-		clusterIdBits: 5,
-		workerIdBits:  5,
+	var idw IDWorker = &idWorker{
+		idEpoch:       DefaultIDEpoch,
+		clusterID:     0,
+		workerID:      0,
+		clusterIDBits: 5,
+		workerIDBits:  5,
 		sequenceBits:  12,
 		sequenceMask:  4095, // int64(1)<<12 - 1
 		sequenceValue: 0,
 		lastTimestamp: 0,
-		maxTimestamp:  int64(1)<<TimestampBits - 1 + DefaultIdEpoch,
+		maxTimestamp:  int64(1)<<TimestampBits - 1 + DefaultIDEpoch,
 	}
-	defaultIdWorker.Store(idw)
+	defaultIDWorker.Store(idw)
 }
 
-// SetDefaultIdWorker sets the default IdWorker instance.
-func SetDefaultIdWorker(w IdWorker) {
-	defaultIdWorker.Store(w)
+// SetDefaultIDWorker sets the default IDWorker instance.
+func SetDefaultIDWorker(w IDWorker) {
+	defaultIDWorker.Store(w)
 }
 
-// DefaultIdWorker returns the default IdWorker instance.
-func DefaultIdWorker() IdWorker {
-	return defaultIdWorker.Load().(IdWorker)
+// DefaultIDWorker returns the default IDWorker instance.
+func DefaultIDWorker() IDWorker {
+	return defaultIDWorker.Load().(IDWorker)
 }
 
-// IdWorker is used to generate unique id.
-type IdWorker interface {
+// IDWorker is used to generate unique id.
+type IDWorker interface {
 	NextInt64() int64
 	NextBytes() [8]byte
 	NextHex() string
@@ -70,10 +70,10 @@ type IdWorker interface {
 type idWorker struct {
 	sync.Mutex
 	idEpoch       int64
-	clusterId     int64
-	workerId      int64
-	clusterIdBits int32
-	workerIdBits  int32
+	clusterID     int64
+	workerID      int64
+	clusterIDBits int32
+	workerIDBits  int32
 	sequenceBits  int32
 	sequenceMask  int64
 	sequenceValue int64
@@ -136,9 +136,9 @@ func (w *idWorker) NextInt64() int64 {
 	}
 	w.lastTimestamp = nextTimestamp
 	slog.Debug("generating new snowflake id", slog.Int64("time.millis", nextTimestamp), slog.Int64("seq.value", w.sequenceValue))
-	return ((nextTimestamp - w.idEpoch) << int64(w.clusterIdBits+w.workerIdBits+w.sequenceBits)) |
-		(w.clusterId << int64(w.workerIdBits+w.sequenceBits)) |
-		(w.workerId << int64(w.sequenceBits)) |
+	return ((nextTimestamp - w.idEpoch) << int64(w.clusterIDBits+w.workerIDBits+w.sequenceBits)) |
+		(w.clusterID << int64(w.workerIDBits+w.sequenceBits)) |
+		(w.workerID << int64(w.sequenceBits)) |
 		w.sequenceValue
 }
 
@@ -153,14 +153,14 @@ func (w *idWorker) NextHex() string {
 	return fmt.Sprintf("%x", w.NextBytes())
 }
 
-// NewIdWorker creates a new IdWorker instance with the given config.
-// If the workerSeqKey is not empty, the workerId will be generated from the Seq.
-func NewIdWorker(cfg config.SnowflakeConfig, seq Seq) (IdWorker, error) {
-	idEpoch := cfg.GetIdEpoch()
-	clusterId := cfg.GetClusterId()
-	workerId := cfg.GetWorkerId()
-	clusterIdBits := cfg.GetClusterIdBits()
-	workerIdBits := cfg.GetWorkerIdBits()
+// NewIDWorker creates a new IDWorker instance with the given config.
+// If the workerSeqKey is not empty, the workerID will be generated from the Seq.
+func NewIDWorker(cfg config.SnowflakeConfig, seq Seq) (IDWorker, error) {
+	idEpoch := cfg.GetIDEpoch()
+	clusterID := cfg.GetClusterID()
+	workerID := cfg.GetWorkerID()
+	clusterIDBits := cfg.GetClusterIDBits()
+	workerIDBits := cfg.GetWorkerIDBits()
 	sequenceBits := cfg.GetSequenceBits()
 
 	workerSeqKey := cfg.GetWorkerSeqKey()
@@ -168,46 +168,46 @@ func NewIdWorker(cfg config.SnowflakeConfig, seq Seq) (IdWorker, error) {
 		if seq == nil {
 			return nil, ErrSeqRequired
 		}
-		if v, err := seq.Next(workerSeqKey, int64(0), int64(1)<<cfg.GetWorkerIdBits()-1); err != nil {
+		if v, err := seq.Next(workerSeqKey, int64(0), int64(1)<<cfg.GetWorkerIDBits()-1); err != nil {
 			return nil, err
 		} else {
-			workerId = v
+			workerID = v
 		}
 	}
 
 	if idEpoch < 0 {
-		return nil, ErrIdEpochOutOfRange
+		return nil, ErrIDEpochOutOfRange
 	}
-	if clusterIdBits <= 0 {
-		return nil, ErrClusterIdBitsOutOfRange
+	if clusterIDBits <= 0 {
+		return nil, ErrClusterIDBitsOutOfRange
 	}
-	if workerIdBits <= 0 {
-		return nil, ErrWorkerIdBitsOutOfRange
+	if workerIDBits <= 0 {
+		return nil, ErrWorkerIDBitsOutOfRange
 	}
 	if sequenceBits <= 0 {
 		return nil, ErrSequenceBitsOutOfRange
 	}
 	// Snowflake format: 1 bit (unused) + 41 bits (timestamp) + remaining bits for cluster/worker/sequence
 	// Total remaining bits: 64 - 1 - 41 = 22 bits
-	if m := clusterIdBits + workerIdBits + sequenceBits; m > MaxPayloadBits {
+	if m := clusterIDBits + workerIDBits + sequenceBits; m > MaxPayloadBits {
 		return nil, fmt.Errorf(
 			"total bits (%d) exceeds maximum %d: %w",
-			m, MaxPayloadBits, ErrIdBitsExceedLimit,
+			m, MaxPayloadBits, ErrIDBitsExceedLimit,
 		)
 	}
-	if m := int64(1)<<clusterIdBits - 1; clusterId < 0 || clusterId > m {
-		return nil, fmt.Errorf("clusterId must be 0-%d: %w", m, ErrClusterIdOutOfRange)
+	if m := int64(1)<<clusterIDBits - 1; clusterID < 0 || clusterID > m {
+		return nil, fmt.Errorf("clusterID must be 0-%d: %w", m, ErrClusterIDOutOfRange)
 	}
-	if m := int64(1)<<workerIdBits - 1; workerId < 0 || workerId > m {
-		return nil, fmt.Errorf("workerId must be 0-%d: %w", m, ErrWorkerIdOutOfRange)
+	if m := int64(1)<<workerIDBits - 1; workerID < 0 || workerID > m {
+		return nil, fmt.Errorf("workerID must be 0-%d: %w", m, ErrWorkerIDOutOfRange)
 	}
 
 	return &idWorker{
 		idEpoch:       idEpoch,
-		clusterId:     clusterId,
-		workerId:      workerId,
-		clusterIdBits: clusterIdBits,
-		workerIdBits:  workerIdBits,
+		clusterID:     clusterID,
+		workerID:      workerID,
+		clusterIDBits: clusterIDBits,
+		workerIDBits:  workerIDBits,
 		sequenceBits:  sequenceBits,
 		sequenceMask:  int64(1)<<sequenceBits - 1,
 		sequenceValue: 0,
