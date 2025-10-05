@@ -19,7 +19,7 @@ func RandString(l int, s string) (string, error) {
 	c := []rune(s)
 	m := big.NewInt(int64(len(c)))
 	var r = make([]rune, l)
-	for i := 0; i < l; i++ {
+	for i := range l {
 		if v, err := rand.Int(rand.Reader, m); err == nil {
 			r[i] = c[v.Int64()]
 		} else {
@@ -32,6 +32,9 @@ func RandString(l int, s string) (string, error) {
 // MaskString masks the given string.
 // The middle third of the given string will be masked with asterisks.
 func MaskString(origin string) string {
+	if origin == "" {
+		return origin
+	}
 	runes := []rune(origin)
 	l := len(runes)
 	s := l / 3
