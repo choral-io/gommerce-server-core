@@ -43,7 +43,7 @@ func init() {
 		sequenceMask:  4095, // int64(1)<<12 - 1
 		sequenceValue: 0,
 		lastTimestamp: 0,
-		maxTimestamp:  int64(1)<<TimestampBits - 1 + DefaultIDEpoch,
+		maxTimestamp:  DefaultIDEpoch + (int64(1)<<TimestampBits - 1),
 	}
 	defaultIDWorker.Store(idw)
 }
@@ -81,38 +81,39 @@ type idWorker struct {
 	maxTimestamp  int64
 }
 
-// getNextTimestamp returns the next valid millisecond timestamp.
+// getTimestamp returns the current timestamp in milliseconds.
 // It handles clock backwards detection and ensures time moves forward.
-func (w *idWorker) getNextTimestamp() int64 {
-	nextTimestamp := time.Now().UnixMilli()
+func (w *idWorker) getTimestamp() int64 {
+	timestamp := time.Now().UnixMilli()
 
 	// Handle clock moved backwards first (recoverable)
-	if nextTimestamp < w.lastTimestamp {
+	if timestamp < w.lastTimestamp {
 		slog.Warn("clock moved backwards",
 			slog.Int64("last.millis", w.lastTimestamp),
-			slog.Int64("current.millis", nextTimestamp))
+			slog.Int64("current.millis", timestamp))
 
-		// Wait for clock to catch up or timeout
-		timeout := time.After(ClockWaitTimeout * time.Second)
-		for nextTimestamp <= w.lastTimestamp {
+		timer := time.NewTimer(ClockWaitTimeout * time.Second)
+		defer timer.Stop()
+
+		for timestamp <= w.lastTimestamp {
 			select {
-			case <-timeout:
+			case <-timer.C:
 				slog.Error("clock did not recover within timeout, aborting id generation")
 				panic("snowflake: clock moved backwards and timeout waiting for recovery")
 			default:
 				time.Sleep(time.Millisecond)
-				nextTimestamp = time.Now().UnixMilli()
+				timestamp = time.Now().UnixMilli()
 			}
 		}
 	}
 
 	// Validate timestamp overflow after clock recovery (non-recoverable)
-	if nextTimestamp > w.maxTimestamp {
-		slog.Error("timestamp exceeds maximum allowed value", slog.Int64("timestamp", nextTimestamp), slog.Int64("max", w.maxTimestamp))
-		panic(fmt.Sprintf("snowflake: timestamp (%d - %d) exceeds maximum allowed value %d", nextTimestamp, w.idEpoch, MaxTimestamp))
+	if timestamp > w.maxTimestamp {
+		slog.Error("timestamp exceeds maximum allowed value", slog.Int64("timestamp", timestamp), slog.Int64("max", w.maxTimestamp))
+		panic(fmt.Sprintf("snowflake: timestamp (%d - %d) exceeds maximum allowed value %d", timestamp, w.idEpoch, MaxTimestamp))
 	}
 
-	return nextTimestamp
+	return timestamp
 }
 
 // NextInt64 returns the next unique id in int64.
@@ -121,22 +122,22 @@ func (w *idWorker) NextInt64() int64 {
 	w.Lock()
 	defer w.Unlock()
 
-	nextTimestamp := w.getNextTimestamp()
+	timestamp := w.getTimestamp()
 
-	if w.lastTimestamp == nextTimestamp {
+	if w.lastTimestamp == timestamp {
 		w.sequenceValue = (w.sequenceValue + 1) & w.sequenceMask
 		if w.sequenceValue == 0 {
 			// Sequence overflow, wait for next millisecond
-			for nextTimestamp == w.lastTimestamp {
-				nextTimestamp = w.getNextTimestamp()
+			for timestamp == w.lastTimestamp {
+				timestamp = w.getTimestamp()
 			}
 		}
 	} else {
 		w.sequenceValue = 0
 	}
-	w.lastTimestamp = nextTimestamp
-	slog.Debug("generating new snowflake id", slog.Int64("time.millis", nextTimestamp), slog.Int64("seq.value", w.sequenceValue))
-	return ((nextTimestamp - w.idEpoch) << int64(w.clusterIDBits+w.workerIDBits+w.sequenceBits)) |
+	w.lastTimestamp = timestamp
+	slog.Debug("generating new snowflake id", slog.Int64("time.millis", timestamp), slog.Int64("seq.value", w.sequenceValue))
+	return ((timestamp - w.idEpoch) << int64(w.clusterIDBits+w.workerIDBits+w.sequenceBits)) |
 		(w.clusterID << int64(w.workerIDBits+w.sequenceBits)) |
 		(w.workerID << int64(w.sequenceBits)) |
 		w.sequenceValue
@@ -162,20 +163,9 @@ func NewIDWorker(cfg config.SnowflakeConfig, seq Seq) (IDWorker, error) {
 	clusterIDBits := cfg.GetClusterIDBits()
 	workerIDBits := cfg.GetWorkerIDBits()
 	sequenceBits := cfg.GetSequenceBits()
-
 	workerSeqKey := cfg.GetWorkerSeqKey()
-	if workerSeqKey != "" {
-		if seq == nil {
-			return nil, ErrSeqRequired
-		}
-		if v, err := seq.Next(workerSeqKey, int64(0), int64(1)<<cfg.GetWorkerIDBits()-1); err != nil {
-			return nil, err
-		} else {
-			workerID = v
-		}
-	}
 
-	if idEpoch < 0 {
+	if idEpoch <= 0 {
 		return nil, ErrIDEpochOutOfRange
 	}
 	if clusterIDBits <= 0 {
@@ -197,6 +187,17 @@ func NewIDWorker(cfg config.SnowflakeConfig, seq Seq) (IDWorker, error) {
 	}
 	if m := int64(1)<<clusterIDBits - 1; clusterID < 0 || clusterID > m {
 		return nil, fmt.Errorf("clusterID must be 0-%d: %w", m, ErrClusterIDOutOfRange)
+	}
+
+	if workerSeqKey != "" {
+		if seq == nil {
+			return nil, ErrSeqRequired
+		}
+		if v, err := seq.Next(workerSeqKey, int64(0), int64(1)<<cfg.GetWorkerIDBits()-1); err != nil {
+			return nil, err
+		} else {
+			workerID = v
+		}
 	}
 	if m := int64(1)<<workerIDBits - 1; workerID < 0 || workerID > m {
 		return nil, fmt.Errorf("workerID must be 0-%d: %w", m, ErrWorkerIDOutOfRange)
