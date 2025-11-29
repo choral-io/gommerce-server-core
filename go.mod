@@ -7,7 +7,7 @@ replace github.com/antlr4-go/antlr/v4 v4.13.1 => ../antlr4-go
 require (
 	buf.build/go/protovalidate v1.0.1
 	github.com/expr-lang/expr v1.17.6
-	github.com/goccy/go-yaml v1.18.0
+	github.com/goccy/go-yaml v1.19.0
 	github.com/golang-jwt/jwt/v5 v5.3.0
 	github.com/google/uuid v1.6.0
 	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.3.3
@@ -17,11 +17,11 @@ require (
 	github.com/redis/rueidis/rueidisotel v1.0.68
 	github.com/rs/cors v1.11.1
 	github.com/shopspring/decimal v1.4.0
-	github.com/uptrace/bun v1.2.15
-	github.com/uptrace/bun/dialect/mssqldialect v1.2.15
-	github.com/uptrace/bun/dialect/mysqldialect v1.2.15
-	github.com/uptrace/bun/dialect/pgdialect v1.2.15
-	github.com/uptrace/bun/extra/bunotel v1.2.15
+	github.com/uptrace/bun v1.2.16
+	github.com/uptrace/bun/dialect/mssqldialect v1.2.16
+	github.com/uptrace/bun/dialect/mysqldialect v1.2.16
+	github.com/uptrace/bun/dialect/pgdialect v1.2.16
+	github.com/uptrace/bun/extra/bunotel v1.2.16
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.63.0
 	go.opentelemetry.io/otel v1.38.0
 	go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc v1.38.0
@@ -35,9 +35,9 @@ require (
 	go.opentelemetry.io/otel/sdk/metric v1.38.0
 	go.opentelemetry.io/otel/trace v1.38.0
 	go.uber.org/fx v1.24.0
-	go.uber.org/zap v1.27.0
+	go.uber.org/zap v1.27.1
 	golang.org/x/net v0.47.0
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20251111163417-95abcf5c77ba
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20251124214823-79d6a2a48846
 	google.golang.org/grpc v1.77.0
 	google.golang.org/protobuf v1.36.10
 )
@@ -52,7 +52,7 @@ require (
 	github.com/google/cel-go v0.26.1 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/klauspost/compress v1.18.1 // indirect
-	github.com/nats-io/nkeys v0.4.11 // indirect
+	github.com/nats-io/nkeys v0.4.12 // indirect
 	github.com/nats-io/nuid v1.0.1 // indirect
 	github.com/puzpuzpuz/xsync/v3 v3.5.1 // indirect
 	github.com/stoewer/go-strcase v1.3.1 // indirect
@@ -65,9 +65,9 @@ require (
 	go.opentelemetry.io/proto/otlp v1.9.0 // indirect
 	go.uber.org/dig v1.19.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	golang.org/x/crypto v0.44.0 // indirect
+	golang.org/x/crypto v0.45.0 // indirect
 	golang.org/x/mod v0.30.0 // indirect
 	golang.org/x/sys v0.38.0 // indirect
 	golang.org/x/text v0.31.0 // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20251111163417-95abcf5c77ba // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20251124214823-79d6a2a48846 // indirect
 )
