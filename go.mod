@@ -6,15 +6,15 @@ replace github.com/antlr4-go/antlr/v4 v4.13.1 => ../antlr4-go
 
 require (
 	buf.build/go/protovalidate v1.1.0
-	github.com/expr-lang/expr v1.17.6
-	github.com/goccy/go-yaml v1.19.0
+	github.com/expr-lang/expr v1.17.7
+	github.com/goccy/go-yaml v1.19.1
 	github.com/golang-jwt/jwt/v5 v5.3.0
 	github.com/google/uuid v1.6.0
 	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.3.3
-	github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.3
-	github.com/nats-io/nats.go v1.47.0
-	github.com/redis/rueidis v1.0.69
-	github.com/redis/rueidis/rueidisotel v1.0.69
+	github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.4
+	github.com/nats-io/nats.go v1.48.0
+	github.com/redis/rueidis v1.0.70
+	github.com/redis/rueidis/rueidisotel v1.0.70
 	github.com/rs/cors v1.11.1
 	github.com/shopspring/decimal v1.4.0
 	github.com/uptrace/bun v1.2.16
@@ -37,8 +37,8 @@ require (
 	go.uber.org/fx v1.24.0
 	go.uber.org/zap v1.27.1
 	golang.org/x/net v0.48.0
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20251213004720-97cd9d5aeac2
-	google.golang.org/grpc v1.77.0
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20251222181119-0a764e51fe1b
+	google.golang.org/grpc v1.78.0
 	google.golang.org/protobuf v1.36.11
 )
 
@@ -70,5 +70,5 @@ require (
 	golang.org/x/mod v0.31.0 // indirect
 	golang.org/x/sys v0.39.0 // indirect
 	golang.org/x/text v0.32.0 // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20251213004720-97cd9d5aeac2 // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20251222181119-0a764e51fe1b // indirect
 )
