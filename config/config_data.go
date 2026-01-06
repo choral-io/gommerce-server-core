@@ -68,7 +68,7 @@ type serverConfig struct {
 	DB      *serverDBConfig
 	Redis   *serverRedisConfig
 	Locker  *serverLockerConfig
-	MinIO   *serverMinIOConfig
+	Storage *serverStorageConfig
 	NATS    *serverNATSConfig
 }
 
@@ -134,11 +134,11 @@ func (c *serverConfig) GetLockerConfig() ServerLockerConfig {
 	return c.Locker
 }
 
-func (c *serverConfig) GetMinIOConfig() ServerMinIOConfig {
-	if c.MinIO == nil {
-		c.MinIO = &serverMinIOConfig{}
+func (c *serverConfig) GetStorageConfig() ServerStorageConfig {
+	if c.Storage == nil {
+		c.Storage = &serverStorageConfig{}
 	}
-	return c.MinIO
+	return c.Storage
 }
 
 func (c *serverConfig) GetNATSConfig() ServerNATSConfig {
@@ -333,22 +333,30 @@ func (c *serverLockerConfig) GetFallbackSETPX() bool {
 	}
 }
 
-type serverMinIOConfig struct {
+type serverStorageConfig struct {
+	Region    *string `yaml:"region"`
 	Endpoint  *string
 	AccessKey *string `yaml:"access-key"`
 	SecretKey *string `yaml:"secret-key"`
-	UseSSL    *bool   `yaml:"use-ssl"`
 }
 
-func (c *serverMinIOConfig) GetEndpoint() string {
+func (c *serverStorageConfig) GetRegion() string {
+	if c.Region == nil {
+		return "auto"
+	} else {
+		return *c.Region
+	}
+}
+
+func (c *serverStorageConfig) GetEndpoint() string {
 	if c.Endpoint == nil {
-		panic("MinIO endpoint is not set")
+		panic("OSS endpoint is not set")
 	} else {
 		return *c.Endpoint
 	}
 }
 
-func (c *serverMinIOConfig) GetAccessKey() string {
+func (c *serverStorageConfig) GetAccessKey() string {
 	if c.AccessKey == nil {
 		return ""
 	} else {
@@ -356,19 +364,11 @@ func (c *serverMinIOConfig) GetAccessKey() string {
 	}
 }
 
-func (c *serverMinIOConfig) GetSecretKey() string {
+func (c *serverStorageConfig) GetSecretKey() string {
 	if c.SecretKey == nil {
 		return ""
 	} else {
 		return *c.SecretKey
-	}
-}
-
-func (c *serverMinIOConfig) GetUseSSL() bool {
-	if c.UseSSL == nil {
-		return true
-	} else {
-		return *c.UseSSL
 	}
 }
 

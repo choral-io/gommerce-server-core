@@ -20,38 +20,38 @@ var (
 type ExtractSectionsResult struct {
 	fx.Out
 
-	ServerConfig       ServerConfig
-	ServerHTTPConfig   ServerHTTPConfig
-	ServerDBConfig     ServerDBConfig
-	ServerRedisConfig  ServerRedisConfig
-	ServerLockerConfig ServerLockerConfig
-	ServerMinIOConfig  ServerMinIOConfig
-	ServerNATSConfig   ServerNATSConfig
-	SnowflakeConfig    SnowflakeConfig
-	LoggingConfig      LoggingConfig
-	TraceConfig        TraceConfig
-	MetricConfig       MetricConfig
-	SecureConfig       SecureConfig
-	SecureTokenConfig  SecureTokenConfig
+	ServerConfig        ServerConfig
+	ServerHTTPConfig    ServerHTTPConfig
+	ServerDBConfig      ServerDBConfig
+	ServerRedisConfig   ServerRedisConfig
+	ServerLockerConfig  ServerLockerConfig
+	ServerStorageConfig ServerStorageConfig
+	ServerNATSConfig    ServerNATSConfig
+	SnowflakeConfig     SnowflakeConfig
+	LoggingConfig       LoggingConfig
+	TraceConfig         TraceConfig
+	MetricConfig        MetricConfig
+	SecureConfig        SecureConfig
+	SecureTokenConfig   SecureTokenConfig
 }
 
 // ExtractSections extracts sections from RootConfig.
 // It is used for dependency injection.
 func ExtractSections(cfg RootConfig) ExtractSectionsResult {
 	result := ExtractSectionsResult{
-		ServerConfig:       cfg.GetServerConfig(),
-		ServerHTTPConfig:   cfg.GetServerConfig().GetHTTPConfig(),
-		ServerDBConfig:     cfg.GetServerConfig().GetDBConfig(),
-		ServerRedisConfig:  cfg.GetServerConfig().GetRedisConfig(),
-		ServerLockerConfig: cfg.GetServerConfig().GetLockerConfig(),
-		ServerMinIOConfig:  cfg.GetServerConfig().GetMinIOConfig(),
-		ServerNATSConfig:   cfg.GetServerConfig().GetNATSConfig(),
-		SnowflakeConfig:    cfg.GetSnowflakeConfig(),
-		LoggingConfig:      cfg.GetLoggingConfig(),
-		TraceConfig:        cfg.GetTraceConfig(),
-		MetricConfig:       cfg.GetMetricConfig(),
-		SecureConfig:       cfg.GetSecureConfig(),
-		SecureTokenConfig:  cfg.GetSecureConfig().GetToken(),
+		ServerConfig:        cfg.GetServerConfig(),
+		ServerHTTPConfig:    cfg.GetServerConfig().GetHTTPConfig(),
+		ServerDBConfig:      cfg.GetServerConfig().GetDBConfig(),
+		ServerRedisConfig:   cfg.GetServerConfig().GetRedisConfig(),
+		ServerLockerConfig:  cfg.GetServerConfig().GetLockerConfig(),
+		ServerStorageConfig: cfg.GetServerConfig().GetStorageConfig(),
+		ServerNATSConfig:    cfg.GetServerConfig().GetNATSConfig(),
+		SnowflakeConfig:     cfg.GetSnowflakeConfig(),
+		LoggingConfig:       cfg.GetLoggingConfig(),
+		TraceConfig:         cfg.GetTraceConfig(),
+		MetricConfig:        cfg.GetMetricConfig(),
+		SecureConfig:        cfg.GetSecureConfig(),
+		SecureTokenConfig:   cfg.GetSecureConfig().GetToken(),
 	}
 	return result
 }
@@ -82,7 +82,7 @@ type ServerConfig interface {
 	GetDBConfig() ServerDBConfig
 	GetRedisConfig() ServerRedisConfig
 	GetLockerConfig() ServerLockerConfig
-	GetMinIOConfig() ServerMinIOConfig
+	GetStorageConfig() ServerStorageConfig
 	GetNATSConfig() ServerNATSConfig
 }
 
@@ -115,12 +115,12 @@ type ServerLockerConfig interface {
 	GetFallbackSETPX() bool
 }
 
-// ServerMinIOConfig specifies settings for the MinIO object storage backend.
-type ServerMinIOConfig interface {
+// ServerStorageConfig specifies settings for the object storage backend.
+type ServerStorageConfig interface {
+	GetRegion() string
 	GetEndpoint() string
 	GetAccessKey() string
 	GetSecretKey() string
-	GetUseSSL() bool
 }
 
 // ServerNATSConfig holds the NATS connection options.
