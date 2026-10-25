@@ -27,13 +27,13 @@ func WithPaging(p interface {
 	GetPage() int32
 	GetSize() int32
 }) func(*bun.SelectQuery) *bun.SelectQuery {
-	var size = 10
+	var size int64 = 10
 	if p.GetSize() > 0 {
-		size = int(p.GetSize())
+		size = int64(p.GetSize())
 	}
-	var page = 1
+	var page int64 = 1
 	if p.GetPage() > 1 {
-		page = int(p.GetPage())
+		page = int64(p.GetPage())
 	}
 	return func(query *bun.SelectQuery) *bun.SelectQuery {
 		return query.Offset((page - 1) * size).Limit(size)
